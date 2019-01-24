@@ -10,12 +10,12 @@ app.get('/', function (req, res) {
     res.status(400).send("Bad Request. Please provide a user_name");
   }
   var client = new Twitter({
-    consumer_key: req.webtaskContext.secrets.TWITTER_CONSUMER_KEY,
-    consumer_secret: req.webtaskContext.secrets.TWITTER_CONSUMER_SECRET,
-    access_token_key: req.webtaskContext.secrets.TWITTER_ACCESS_TOKEN_KEY,
-    access_token_secret: req.webtaskContext.secrets.TWITTER_ACCESS_TOKEN_SECRET
+    consumer_key: req.webtaskContext.secrets.CONSUMER_KEY,
+    consumer_secret: req.webtaskContext.secrets.CONSUMER_SECRET,
+    access_token_key: req.webtaskContext.secrets.ACCESS_TOKEN,
+    access_token_secret: req.webtaskContext.secrets.ACCESS_TOKEN_SECRET
   });
-  client.get(`https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=${req.query.user_name}&count=25`, async (err, tweets) => {        
+  client.get(`https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=${req.query.user_name}&count=25`, async (err, tweets) => {    
     var tweetTexts = tweets.map(t => t.text)
                            .reduce((acc, cur) => acc + cur, '')
                            .replace(/(?:https?|ftp):\/\/[\n\S]+/g, '') // Remove links
@@ -37,7 +37,7 @@ app.get('/', function (req, res) {
                  line2.map(w => w.word).join(' '),
                  line3.map(w => w.word).join(' ')];
 
-    res.send(JSON.stringify(haiku));
+    res.json(haiku);
   });
 });
 
@@ -54,8 +54,8 @@ function getLine(syllables, possibleWords, pos) {
   return [word, ...getLine(syllables - word.syllables, getPossibleWords(word.key, pos), pos)];
 }
 
-function getPossibleWords(position, pos) {
-  //Very basic grammar
+//Very basic grammar
+function getPossibleWords(position, pos) {  
   if(position === 'nouns') {
     return [...pos.adverbs, ...pos.verbs];
   } else if(position === 'adverbs') {
